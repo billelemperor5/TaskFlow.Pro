@@ -52,6 +52,10 @@
             transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
+        /* تصغير عام متجاوب يعتمد على عرض الشاشة */
+        /* حجم خط متوسط افتراضياً عبر الأجهزة */
+        html { font-size: clamp(14px, 1.1vw, 16px); }
+
         body {
             background-color: var(--light-bg);
             color: var(--dark-text);
@@ -224,8 +228,19 @@
             100% { transform: translateY(0); }
         }
 
-        /* [هاتف] ابقِ التصميم السابق (شريط عائم في الوسط) وارفعه قليلاً كما كان */
+        /* [هاتف] تحسينات عامة + رفع الشريط السفلي قليلاً */
         @media (max-width: 767px) {
+            body { justify-content: flex-start; align-items: stretch; }
+            .task-manager-app { min-height: 100dvh; height: auto; }
+            /* إعادة مظهر الهيدر على الهاتف مع دعم منطقة الأمان العلوية */
+            .app-header {
+                padding: 12px 15px;
+                padding-top: calc(12px + env(safe-area-inset-top, 0px));
+                background-color: rgba(255, 255, 255, 0.8);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+                border-bottom: 1px solid var(--border-color);
+            }
             .mobile-nav {
                 left: 50%;
                 transform: translateX(-50%);
@@ -236,6 +251,16 @@
             }
             /* اجعل خلفية التطبيق مثل الخلفية العامة لإخفاء أي شريط أبيض نهائياً */
             .task-manager-app { background-color: var(--light-bg); }
+
+            /* تصغير أحجام العناصر لتناسب الهاتف الحقيقي */
+            .welcome-card { padding: 16px; border-radius: 18px; }
+            .welcome-card h2 { font-size: 1.1rem !important; }
+            .welcome-card p { font-size: 0.9rem !important; }
+            .date-info-card { padding: 16px; border-radius: 18px; }
+            .pro-card { padding: 14px; }
+            .pro-card .icon-wrapper { width: 56px; height: 56px; font-size: 26px; }
+            .pro-card .card-title { font-size: 1.05rem; }
+            .pro-card .card-desc { font-size: 0.8rem; }
         }
 
         /* -------------------- الجسم الرئيسي -------------------- */
@@ -1145,7 +1170,7 @@
 
         /* [تعديل] هاتف صغير/صغير-متوسط: شبكتان في الصف */
         @media (max-width: 767px) {
-            .pro-cards-grid { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
+            .pro-cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
             .pro-card { max-width: none; width: 100%; }
         }
 
@@ -1172,7 +1197,7 @@
                 display: grid; /* استخدام Grid لتثبيت عدد الأعمدة */
                 grid-template-columns: repeat(2, 1fr); /* بطاقتان مرنتان بدون قص */
                 place-items: stretch;
-                gap: 24px;
+                gap: 20px;
                 width: 100%;
             }
             /* اجعل شبكة البطاقات تمتد على عرض شبكة المهام بالكامل */
@@ -1180,6 +1205,7 @@
             .pro-card {
                 max-width: none; /* السماح بملء العمود بالكامل */
                 width: 100%;
+                padding: 16px; /* حجم متوسط على الديسكتوب */
             }
         }
 
@@ -1187,16 +1213,16 @@
         @media (min-width: 1400px) {
             .pro-cards-grid {
                 grid-template-columns: repeat(3, 1fr);
-                gap: 28px;
+                gap: 22px;
             }
-            .pro-card { padding: 18px; }
-            .pro-card .icon-wrapper { width: 72px; height: 72px; font-size: 32px; }
+            .pro-card { padding: 16px; }
+            .pro-card .icon-wrapper { width: 60px; height: 60px; font-size: 28px; }
         }
 
         /* شاشات فائقة الاتساع: 4 بطاقات في الصف */
         @media (min-width: 1800px) {
             .pro-cards-grid { grid-template-columns: repeat(4, 1fr); }
-            .pro-card .icon-wrapper { width: 76px; height: 76px; font-size: 34px; }
+            .pro-card .icon-wrapper { width: 64px; height: 64px; font-size: 30px; }
         }
     </style>
 </head>
