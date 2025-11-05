@@ -1,0 +1,2445 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager Pro - Dark Mode</title>
+
+    <!-- خطوط Google: (Cairo للغة العربية و Inter للإنجليزية والأرقام) -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome CDN للأيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* ------------------------------------ متغيرات الألوان (Themes) ------------------------------------ */
+        :root {
+            /* الألوان الفاتحة */
+            --primary-color: #5C6BC0;
+            --secondary-color: #4CAF50;
+            --light-bg: #EAEFF4; 
+            --main-bg: #FFFFFF;
+            --dark-text: #263238;
+            --grey-text: #90A4AE;
+            --border-color: #F0F4F8;
+            --soft-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+            /* ألوان المشاريع */
+            --blue-p: #5C6BC0; 
+            --green-p: #4CAF50; 
+            --orange-p: #FF9800; 
+            --purple-p: #AB47BC; 
+        }
+
+        /* الوضع الداكن (Dark Mode) */
+        .dark-mode {
+            --primary-color: #7986CB;
+            --secondary-color: #66BB6A;
+            --light-bg: #1B212C; /* خلفية داكنة رئيسية */
+            --main-bg: #222B36; /* خلفية العناصر داكنة أفتح قليلاً */
+            --dark-text: #ECEFF1; /* نصوص فاتحة */
+            --grey-text: #90A4AE;
+            --border-color: #2F3945;
+            --soft-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* تظليل داكن أكثر حدة */
+        }
+
+
+        /* ------------------------------------ إعادة التعيين والخطوط ------------------------------------ */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', 'Inter', sans-serif;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0; /* إزالة الهامش ليملأ الشاشة */
+        }
+
+        .task-manager-app {
+            width: 100%;
+            height: 100vh; /* استخدام ارتفاع الشاشة الكامل */
+            height: 100dvh; /* إصلاح فراغات شريط المتصفح بالهواتف */
+            background-color: var(--main-bg);
+            border-radius: 0; /* إزالة الحواف الدائرية للهاتف */
+            box-shadow: var(--soft-shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* [إضافة] تعديلات للهواتف */
+        .app-body {
+            padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); /* مساحة للبار + منطقة الأمان */
+        }
+
+        /* -------------------- الهيدر -------------------- */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px; /* تعديل: تصغير الهوامش أكثر */
+            border-bottom: 1px solid var(--border-color);
+            background-color: var(--main-bg);
+            z-index: 10;
+            position: sticky; /* تثبيت الهيدر في الأعلى */
+            top: 0;
+            background-color: rgba(255, 255, 255, 0.8); /* خلفية شفافة مع ضبابية */
+            backdrop-filter: blur(8px);
+        }
+
+        .logo {
+            font-size: 1.1rem; /* تعديل: تصغير حجم الشعار أكثر */
+            font-weight: 800;
+            color: var(--primary-color);
+            letter-spacing: 0.5px;
+        }
+
+        .logo-container {
+            line-height: 1.1;
+        }
+
+        .tagline {
+            font-size: 0.6rem; /* تعديل: تصغير حجم النص الثانوي أكثر */
+            color: var(--grey-text);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            font-family: 'Inter', sans-serif; /* استخدام الخط الإنجليزي */
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px; /* تعديل: تقليل المسافة بين الأيقونات أكثر */
+        }
+
+        .header-right .icon {
+            font-size: 1.1rem; /* تعديل: تصغير حجم الأيقونات */
+            color: var(--grey-text);
+            cursor: pointer;
+            width: 30px; /* تعديل: تصغير حجم الأيقونات أكثر */
+            height: 30px; /* تعديل: تصغير حجم الأيقونات أكثر */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-right .icon:hover {
+            color: var(--primary-color);
+            background-color: var(--border-color);
+        }
+        
+        /* زر الوضع الداكن */
+        #darkModeToggle {
+            cursor: pointer;
+            font-size: 1.4rem;
+        }
+        
+        /* تخصيص زر الوضع الداكن في الوضع الداكن */
+        .dark-mode #darkModeToggle {
+            color: var(--primary-color);
+        }
+
+
+        .add-task-btn {
+            background: linear-gradient(135deg, var(--primary-color), #7986CB);
+            color: white;
+            border: none;
+            /* تعديل: تحويله إلى زر أيقوني للهاتف */
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            border-radius: 50%;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(92, 107, 192, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center; /* تعديل: توسيط الأيقونة */
+        }
+
+        /* تعديل: إخفاء النص داخل الزر على الهاتف */
+        .add-task-btn span {
+            display: none;
+        }
+
+        /* [إضافة] شريط التنقل السفلي للهواتف */
+        .mobile-nav {
+            position: fixed;
+            bottom: env(safe-area-inset-bottom, 0px); /* اجعل الشريط ملاصقاً للأسفل على الهاتف */
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 30px);
+            max-width: 400px;
+            height: 60px; /* تعديل: تصغير ارتفاع الشريط */
+            background-color: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 35px;
+            box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.15);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+            border: 1px solid var(--border-color);
+        }
+        .dark-mode .mobile-nav {
+            background: rgba(40, 40, 60, 0.65);
+        }
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--grey-text);            
+            flex-grow: 1;
+            height: 100%;
+            gap: 4px; /* إضافة مسافة بين الأيقونة والنص */
+        }
+        .mobile-nav-item i {
+            font-size: 1.2rem; /* تعديل: تصغير حجم الأيقونة */
+        }
+        .mobile-nav-item span {
+            font-size: 0.65rem; /* تعديل: تصغير حجم النص */
+            font-weight: 600;
+        }
+        .mobile-nav-item.active {
+            color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+        .mobile-nav-item.active i {
+            animation: nav-bounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes nav-bounce {
+            0%   { transform: translateY(0); }
+            50%  { transform: translateY(-5px); }
+            100% { transform: translateY(0); }
+        }
+
+        /* [هاتف] ابقِ التصميم السابق (شريط عائم في الوسط) وارفعه قليلاً كما كان */
+        @media (max-width: 767px) {
+            .mobile-nav {
+                left: 50%;
+                transform: translateX(-50%);
+                width: calc(100% - 30px);
+                max-width: 400px;
+                border-radius: 35px;
+                bottom: calc(24px + env(safe-area-inset-bottom, 0px)); /* رفع إضافي بسيط */
+            }
+            /* اجعل خلفية التطبيق مثل الخلفية العامة لإخفاء أي شريط أبيض نهائياً */
+            .task-manager-app { background-color: var(--light-bg); }
+        }
+
+        /* -------------------- الجسم الرئيسي -------------------- */
+        .app-body {
+            display: flex;
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        /* -------------------- الشريط الجانبي -------------------- */
+        .sidebar {
+            width: 280px;
+            min-width: 280px;
+            padding: 30px 25px;
+            border-left: 1px solid var(--border-color);
+            background-color: var(--main-bg);
+            overflow-y: auto;
+            box-shadow: 5px 0 15px -5px rgba(0, 0, 0, 0.03);
+            display: none; /* إخفاء الشريط الجانبي افتراضياً (للهواتف) */
+        }
+        .dark-mode .sidebar {
+            box-shadow: 5px 0 15px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            color: var(--grey-text);
+            margin-bottom: 20px;
+            padding: 0 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .project-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 15px;
+            margin-bottom: 8px;
+            border-radius: 15px;
+            cursor: pointer;
+        }
+
+        .project-item:hover {
+            background-color: var(--border-color);
+        }
+
+        .project-item.active {
+            background-color: var(--primary-color);
+            color: var(--main-bg);
+            font-weight: 700;
+            box-shadow: 0 6px 15px rgba(92, 107, 192, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .project-item i {
+            font-size: 1.1rem;
+        }
+        .project-item.active i { color: var(--main-bg) !important; }
+
+        .project-item span {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        /* -------------------- قسم مدير الملفات -------------------- */
+        .file-manager-section {
+            display: none; /* مخفي بشكل افتراضي */
+            flex-grow: 1; /* تعديل: تصغير الهوامش للهاتف */
+            padding: 20px 15px;
+            overflow-y: auto;
+            background-color: var(--light-bg);
+        }
+
+        .file-upload-area {
+            border: 2px dashed var(--border-color); /* تعديل: تصغير */
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            background-color: var(--main-bg);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 180px; /* تعديل: تصغير */
+        }
+        .file-upload-area:hover {
+            border-color: var(--primary-color);
+            background-color: var(--border-color);
+        }
+
+        /* -------------------- قائمة الملفات -------------------- */
+        .file-list-container {
+            margin-top: 25px; /* تعديل: تصغير */
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* تعديل: عمودان للهاتف */
+            gap: 15px;
+        }
+
+        .file-item {
+            background-color: var(--main-bg);
+            border-radius: 12px; /* تعديل: تصغير */
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--soft-shadow);
+            position: relative;
+            overflow: hidden; 
+            cursor: pointer;
+        }
+
+        .file-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        .dark-mode .file-item:hover {
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .file-thumbnail {
+            height: 100px; /* تعديل: تصغير */
+            width: 100%;
+            background-color: var(--border-color);
+            display: flex;
+            justify-content: center;
+            align-items: center; 
+            font-size: 3rem; /* تعديل: تصغير */
+            overflow: hidden;
+        }
+        .file-thumbnail img, .file-thumbnail video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .file-thumbnail .image { color: var(--blue-p); }
+        .file-thumbnail .video { color: var(--purple-p); }
+        .file-thumbnail .audio { color: var(--orange-p); }
+        .file-thumbnail .document { color: var(--green-p); }
+        .file-thumbnail .archive { color: var(--grey-text); }
+
+        .file-details {
+            flex-grow: 1;
+            padding: 10px; /* تعديل: تصغير */
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .file-info {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .file-name { font-weight: 600; font-size: 0.85rem; } /* تعديل: تصغير */
+        .file-size { font-size: 0.7rem; color: var(--grey-text); } /* تعديل: تصغير */
+
+        /* -------------------- نافذة المعاينة المنبثقة (Modal) -------------------- */
+        .preview-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none; /* مخفي افتراضياً */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .preview-modal-content {
+            background-color: var(--main-bg);
+            padding: 20px; /* تعديل: تصغير */
+            border-radius: 15px;
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--soft-shadow);
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center; 
+            margin-bottom: 15px; /* تعديل: تصغير */
+        }
+        .preview-header .file-name { font-size: 1rem; } /* تعديل: تصغير */
+        .preview-header .close-btn { font-size: 1.8rem; cursor: pointer; color: var(--grey-text); }
+        .preview-header .close-btn:hover { color: var(--dark-text); }
+
+        .preview-body {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .preview-body img, .preview-body video {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 10px;
+        }
+
+        /* -------------------- نافذة تأكيد الحذف -------------------- */
+        .confirm-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none; /* مخفي افتراضياً */
+            justify-content: center;
+            align-items: center;
+            z-index: 1001; /* فوق نافذة المعاينة */
+        }
+
+        .confirm-modal-content {
+            background-color: var(--main-bg);
+            padding: 25px; /* تعديل: تصغير */
+            border-radius: 15px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: var(--soft-shadow);
+        }
+
+        .confirm-modal-content h4 {
+            font-size: 1.3rem; /* تعديل: تصغير */
+            margin-bottom: 15px;
+            color: var(--dark-text);
+        }
+
+        .confirm-modal-content p {
+            color: var(--grey-text);
+            margin-bottom: 25px; /* تعديل: تصغير */
+            line-height: 1.6;
+            font-size: 0.9rem; /* تعديل: تصغير */
+        } 
+
+        .confirm-modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .confirm-modal-actions button {
+            padding: 10px 25px; /* تعديل: تصغير */
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9rem; /* تعديل: تصغير */
+        }
+
+        .confirm-modal-actions .btn-secondary { background-color: var(--border-color); color: var(--dark-text); }
+        .confirm-modal-actions .btn-danger { background-color: #E53935; color: white; }
+
+        /* -------------------- نافذة رمز PIN -------------------- */
+        .pin-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none; /* مخفي افتراضياً */
+            justify-content: center;
+            align-items: center;
+            z-index: 1002; /* فوق كل شيء */
+        }
+
+        .pin-modal-content {
+            background-color: var(--main-bg);
+            padding: 25px; /* تعديل: تصغير */
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: var(--soft-shadow);
+        }
+
+        .pin-modal-content h4 {
+            font-size: 1.3rem; /* تعديل: تصغير */
+            margin-bottom: 15px;
+            color: var(--dark-text);
+        }
+
+        .pin-modal-content p {
+            color: var(--grey-text);
+            margin-bottom: 25px; /* تعديل: تصغير */
+            font-size: 0.9rem; /* تعديل: تصغير */
+        }
+
+        .pin-input-container {
+            margin-bottom: 20px;
+        }
+
+        .pin-input {
+            width: 100%; 
+            padding: 12px; /* تعديل: تصغير */
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            text-align: center;
+            font-size: 1.5rem;
+            letter-spacing: 10px;
+            background-color: var(--light-bg);
+            color: var(--dark-text);
+        }
+        .pin-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .pin-change-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .pin-change-form .setting-title {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .pin-change-form .pin-input {
+            background-color: var(--light-bg);
+            letter-spacing: 5px;
+            font-size: 1.2rem; /* تعديل: تصغير الخط */
+            padding: 10px; /* تعديل: تصغير الحشو */
+        }
+
+        .pin-change-form hr {
+            border: none;
+            border-top: 1px solid var(--border-color);
+            margin: 15px 0; /* تعديل: تصغير الهامش */
+        }
+        /* [تعديل] تنسيقات قسم الإعدادات كواجهة */
+        .settings-section {
+            display: none; /* مخفي بشكل افتراضي */
+            flex-grow: 1;
+            padding: 20px 15px;
+            overflow-y: auto;
+            background-color: var(--light-bg);
+        }
+        .setting-item-clickable {
+            background-color: var(--main-bg);
+            padding: 15px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        /* -------------------- فلاتر الملفات -------------------- */
+        .file-filters {
+            display: flex; 
+            gap: 10px;
+            margin-bottom: 20px; /* تعديل: تصغير */
+            background-color: var(--main-bg);
+            padding: 5px; /* تعديل: تصغير */
+            border-radius: 15px;
+            align-self: flex-start;
+        }
+        .filter-btn {
+            padding: 8px 15px; /* تعديل: تصغير */
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--grey-text); 
+            font-size: 0.8rem; /* تعديل: تصغير */
+        }
+        .filter-btn.active { background-color: var(--primary-color); color: white; }
+        /* -------------------- المحتوى الرئيسي -------------------- */
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+            overflow-x: hidden; /* منع أي تمدد أفقي غير مقصود */
+            background-color: var(--light-bg);
+        }
+
+        /* -------------------- قسم الملاحظات السريعة -------------------- */
+        .quick-notes-section {
+            display: none; /* مخفي بشكل افتراضي */
+            flex-grow: 1;
+            padding: 20px 15px; /* تعديل: تصغير */
+            overflow-y: auto;
+            background-color: var(--light-bg);
+        }
+
+        .add-note-container {
+            background-color: var(--main-bg);
+            padding: 15px; /* تعديل: تصغير */
+            border-radius: 15px;
+            box-shadow: var(--soft-shadow);
+            margin-bottom: 25px; /* تعديل: تصغير */
+        }
+
+        .add-note-container textarea {
+            width: 100%;
+            border: none;
+            background-color: transparent;
+            resize: none; 
+            font-size: 1rem; /* تعديل: تصغير */
+            min-height: 60px;
+            color: var(--dark-text);
+        }
+        .add-note-container textarea:focus { outline: none; }
+
+        .notes-list-container {
+            display: grid; 
+            grid-template-columns: 1fr; /* تعديل: عمود واحد للهاتف */
+            gap: 15px;
+        }
+
+        .note-item {
+            background-color: var(--main-bg);
+            border-radius: 15px;
+            padding: 15px; /* تعديل: تصغير */
+            box-shadow: var(--soft-shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; 
+        }
+
+        .note-content {
+            color: var(--dark-text);
+            line-height: 1.7;
+            margin-bottom: 20px;
+            white-space: pre-wrap; /* للحفاظ على فواصل الأسطر */
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 10px;
+            align-self: flex-end;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 20px 15px;
+            overflow-y: auto;
+            overflow-x: hidden; /* منع أي تمدد أفقي غير مقصود */
+            background-color: var(--light-bg);
+        }
+
+        .main-title {
+            font-size: 1.8rem; /* تعديل: تصغير */
+            font-weight: 800;
+            color: var(--dark-text);
+            margin-bottom: 20px; /* تعديل: تصغير */
+        }
+
+        .tasks-container {
+            display: grid; /* تغيير إلى عمود واحد للهواتف */
+            grid-template-columns: 1fr; /* تعديل: تقليل الفجوة بين الأعمدة */
+            gap: 25px;
+        }
+
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px; /* تعديل: تقليل الهامش السفلي */
+            padding-bottom: 10px;
+        }
+
+        .column-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--dark-text);
+            position: relative;
+        }
+        
+        .column-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            right: 0;
+            width: 50%;
+            height: 4px;
+            background-color: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        .sort-options {
+            display: flex;
+            gap: 5px;
+            background-color: var(--main-bg);
+            border-radius: 15px;
+            padding: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .sort-btn {
+            font-size: 0.8rem; /* تعديل: تصغير خط الأزرار */
+            color: var(--grey-text);
+            padding: 6px 14px; /* تعديل: تصغير حجم الأزرار */
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .sort-btn.active {
+            background-color: var(--secondary-color);
+            color: white;
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        /* -------------------- عنصر المهمة -------------------- */
+        .task-item {
+            background-color: var(--main-bg);
+            border-radius: 15px; /* تعديل: تقليل الحواف */
+            padding: 15px; /* تعديل: تصغير الهامش الداخلي */
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
+            border-right: 6px solid transparent; 
+        }
+
+        .task-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15); 
+        }
+        .dark-mode .task-item:hover {
+             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .task-main {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-grow: 1;
+        }
+
+        /* شريط اللون على اليمين */
+        .task-item[data-project-color="var(--green-p)"] { border-right-color: var(--green-p); }
+        .task-item[data-project-color="var(--blue-p)"] { border-right-color: var(--blue-p); }
+        .task-item[data-project-color="var(--orange-p)"] { border-right-color: var(--orange-p); }
+        .task-item[data-project-color="var(--purple-p)"] { border-right-color: var(--purple-p); }
+        
+        .task-title {
+            font-weight: 700;
+            margin-bottom: 4px; /* تعديل: تقليل الهامش */
+            font-size: 1rem; /* تعديل: تصغير حجم الخط */
+        }
+
+        .task-time {
+            color: var(--grey-text);
+            font-size: 0.8rem; /* تعديل: تصغير حجم الخط */
+            font-weight: 500;
+        }
+
+        .task-actions .icon,
+        .task-actions .check-icon {
+            color: var(--grey-text);
+            font-size: 1.2rem; /* تعديل: تصغير حجم الأيقونات */
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* نمط المهمة المكتملة */
+        .task-item.completed {
+            opacity: 0.6;
+            background-color: var(--border-color);
+            box-shadow: none;
+            border-right-color: transparent !important; 
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+            color: var(--grey-text);
+            font-weight: 600;
+        }
+
+        .task-item.completed .check-icon {
+            color: var(--secondary-color);
+        }
+
+        /* [إضافة] تنسيقات للشاشات الكبيرة (Desktop) */
+        @media (min-width: 1024px) {
+            body {
+                padding: 20px; /* إعادة الهامش للشاشات الكبيرة */
+            }
+            .task-manager-app {
+                width: 95%;
+                max-width: 1500px;
+                height: 90vh;
+                border-radius: 25px; /* إعادة الحواف الدائرية */
+            }
+            .app-body {
+                padding-bottom: 0; /* إزالة المساحة السفلية */
+            }
+            .sidebar {
+                display: block; /* إظهار الشريط الجانبي */
+            }
+            .mobile-nav {
+                display: none; /* إخفاء شريط التنقل السفلي */
+            }
+            .tasks-container {
+                grid-template-columns: 1fr 1fr; /* إعادة تصميم العمودين */
+            }
+            .app-header {
+                position: static; /* إزالة تثبيت الهيدر */
+            }
+
+            /* [إضافة] إعادة الأحجام الكبيرة للشاشات المكتبية */
+            .app-header {
+                padding: 25px 40px;
+            }
+            .logo {
+                font-size: 1.6rem;
+            }
+            .tagline {
+                font-size: 0.8rem;
+            }
+            .header-right {
+                gap: 25px;
+            }
+            .header-right .icon {
+                font-size: 1.2rem;
+                width: 35px;
+                height: 35px;
+            }
+            .add-task-btn {
+                /* تعديل: إعادة الزر إلى شكله الكامل على الحاسوب */
+                width: auto;
+                height: auto;
+                padding: 14px 28px;
+                gap: 10px;
+                font-size: 1.05rem;
+                border-radius: 30px;
+            }
+            .main-content {
+                padding: 40px;
+            }
+            .main-title {
+                font-size: 2.8rem;
+                margin-bottom: 40px;
+            }
+            .file-manager-section, .quick-notes-section {
+                padding: 40px;
+            }
+            .file-filters {
+                margin-bottom: 30px;
+                padding: 8px;
+            }
+            .filter-btn {
+                padding: 10px 20px;
+                font-size: 1rem;
+            }
+            .file-upload-area {
+                border-width: 3px;
+                border-radius: 20px;
+                padding: 60px;
+                min-height: 300px;
+            }
+            .file-list-container {
+                margin-top: 40px;
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                gap: 20px;
+            }
+            .file-item { border-radius: 20px; }
+            .file-thumbnail { height: 150px; font-size: 4rem; }
+            .file-details { padding: 15px; }
+            .file-name { font-size: 1rem; }
+            .file-size { font-size: 0.85rem; }
+            .add-note-container {
+                padding: 20px;
+                border-radius: 20px;
+                margin-bottom: 40px;
+            }
+            .add-note-container textarea { font-size: 1.1rem; }
+            .notes-list-container {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 20px;
+            }
+            .note-item { padding: 20px; }
+            .confirm-modal-content { padding: 30px 40px; border-radius: 20px; }
+            .confirm-modal-content h4 { font-size: 1.5rem; }
+            .confirm-modal-content p { font-size: 1rem; margin-bottom: 30px; }
+            .confirm-modal-actions button { padding: 12px 30px; font-size: 1rem; }
+            .pin-modal-content { padding: 40px; border-radius: 20px; }
+            .pin-modal-content h4 { font-size: 1.5rem; }
+            .pin-modal-content p { font-size: 1rem; margin-bottom: 30px; }
+            .pin-input { padding: 15px; }
+            .settings-modal-content { border-radius: 20px; }
+            .settings-header { padding: 25px 30px !important; }
+            .settings-header h4 { font-size: 1.5rem !important; }
+            .settings-body { padding: 30px !important; }
+            .setting-item-clickable { padding: 20px !important; }
+            .setting-item-clickable span { font-size: 1.1rem !important; }
+            .pin-change-form .setting-title { font-size: 1.2rem !important; }
+            .pin-change-form .pin-input {
+                letter-spacing: 10px !important;
+                font-size: 1.5rem !important;
+                padding: 15px !important;
+            }
+            .preview-modal-content { padding: 30px; border-radius: 20px; }
+            .preview-header { margin-bottom: 20px; }
+            .preview-header .file-name { font-size: 1.2rem; }
+            .welcome-card {
+                border-radius: 20px !important;
+                padding: 25px !important;
+                margin-bottom: 40px !important;
+            }
+            .welcome-card {
+                border-radius: 20px !important;
+                padding: 25px !important;
+                margin-bottom: 40px !important;
+                gap: 16px !important;
+            }
+            .welcome-card img {
+                width: 64px !important;
+                height: 64px !important;
+            }
+            .welcome-card h2 { font-size: 1.7rem !important; }
+            .welcome-card p { font-size: 1.05rem !important; }
+            .welcome-card #current-date-display { font-size: 1.2rem !important; }
+            .tasks-container {
+                gap: 40px;
+            }
+            .column-header {
+                margin-bottom: 30px;
+            }
+            .task-item {
+                border-radius: 18px;
+                padding: 20px;
+            }
+            .task-title {
+                font-size: 1.1rem;
+                margin-bottom: 5px;
+            }
+            .task-time { font-size: 0.9rem; }
+            .task-actions .icon, .task-actions .check-icon { font-size: 1.4rem; }
+            /* تعديل: إظهار النص داخل الزر على الحاسوب */
+            .add-task-btn span {
+                display: inline;
+            }
+            /* [إضافة] إعادة حجم نافذة تسجيل الدخول للشاشات الكبيرة */
+            .login-modal-content {
+                padding: 30px 40px !important;
+                text-align: right !important;
+                max-width: 500px !important;
+            }
+        }
+        /* --- [إضافة جديدة] بطاقة التاريخ والإجراءات السريعة --- */
+        .date-info-card {
+            background: linear-gradient(135deg, #607D8B, #455A64); /* تدرج لوني رمادي-أزرق احترافي */
+            color: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px; /* متناسق مع بطاقة الترحيب */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .dark-mode .date-info-card {
+            background: linear-gradient(135deg, #37474F, #263238); /* تدرج لوني داكن */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+        .date-info-card::before { /* نمط شبكي خفيف */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+            background-size: 18px 18px;
+            opacity: 0.4;
+        }
+        .date-info-card .date-display {
+            font-weight: 800;
+            font-size: 1rem;
+            color: white;
+        }
+        .date-info-card .date-label {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        .date-info-card .icon-btn-card {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            box-shadow: none; /* إزالة الظل الفردي للزر */
+        }
+        .date-info-card .icon-btn-card:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* --- [تعديل] بطاقة الترحيب الاحترافية --- */
+        .welcome-card {
+            background: linear-gradient(135deg, var(--primary-color), #3949AB);
+            color: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 15px 30px -10px rgba(92, 107, 192, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .dark-mode .welcome-card {
+            background: linear-gradient(135deg, #2A323E, #1B212C);
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.4);
+        }
+        .welcome-card::before { /* لمسة تصميمية: إضافة نمط شبكي شفاف */
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 15px 15px;
+            opacity: 0.5;
+        }
+        .welcome-card img {
+            border: 3px solid rgba(255, 255, 255, 0.8) !important;
+        }
+        .welcome-card h2 { color: white !important; }
+        .welcome-card p, .welcome-card div { color: rgba(255, 255, 255, 0.85) !important; }
+
+    </style>
+    <!-- [إضافة جديدة] تنسيقات البطاقات الاحترافية -->
+    <style>
+        .pro-cards-grid {
+            display: grid; /* اعتماد Grid بشكل أساسي لكل المقاسات */
+            grid-template-columns: 1fr; /* الافتراضي: عمود واحد */
+            gap: 20px; /* زيادة المسافة قليلاً */
+            margin-top: 25px;
+            width: 100%;
+            box-sizing: border-box;
+            padding-inline: 4px; /* حافة خفيفة لمنع قصّ البطاقة الأخيرة */
+        }
+
+        .pro-card {
+            background-color: var(--main-bg);
+            border-radius: 18px;
+            padding: 15px; /* تعديل: تصغير الحشو قليلاً ليناسب الشاشات الصغيرة */
+            display: flex;
+            width: 100%; /* اجعل البطاقة تملأ عمود الشبكة بالكامل */
+            max-width: none; /* لا تقييد للعرض داخل Grid */
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 12px;
+            box-shadow: var(--soft-shadow);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            /* [إضافة جديدة] إعدادات تأثير الظهور التدريجي */
+            opacity: 0;
+            transform: translateY(20px);
+            animation: card-fade-in 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+        /* [إضافة جديدة] تأخير ظهور كل بطاقة بشكل متتالي */
+        .pro-card:nth-child(1) { animation-delay: 0.1s; }
+        .pro-card:nth-child(2) { animation-delay: 0.2s; }
+        .pro-card:nth-child(3) { animation-delay: 0.3s; }
+        .pro-card:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes card-fade-in {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pro-card:hover {
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+        }
+        .dark-mode .pro-card:hover {
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .pro-card .icon-wrapper {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            box-shadow: 0 8px 20px -5px rgba(0,0,0,0.3);
+        }
+        .pro-card .card-title { font-weight: 800; font-size: 1rem; color: var(--dark-text); }
+        .pro-card .card-desc { font-size: 0.8rem; color: var(--grey-text); margin-top: 2px; }
+
+        /* [تعديل] هاتف صغير/صغير-متوسط: شبكتان في الصف */
+        @media (max-width: 767px) {
+            .pro-cards-grid { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
+            .pro-card { max-width: none; width: 100%; }
+        }
+
+        /* شاشة هاتف صغيرة جداً: بطاقة واحدة بكل صف */
+        @media (max-width: 420px) {
+            .pro-cards-grid { grid-template-columns: 1fr; }
+        }
+
+        /* تابلت: بطاقتان بكل صف مع Grid لضبط المحاذاة */
+        @media (min-width: 768px) and (max-width: 1023px) {
+            .pro-cards-grid {
+                grid-template-columns: repeat(2, minmax(220px, 1fr));
+                gap: 20px;
+            }
+            .pro-card {
+                max-width: none;
+                width: 100%;
+            }
+        }
+
+        /* [تعديل] عرض بطاقتين بكل صف في الشاشات الكبيرة */
+        @media (min-width: 1024px) {
+            .pro-cards-grid {
+                display: grid; /* استخدام Grid لتثبيت عدد الأعمدة */
+                grid-template-columns: repeat(2, 1fr); /* بطاقتان مرنتان بدون قص */
+                place-items: stretch;
+                gap: 24px;
+                width: 100%;
+            }
+            /* اجعل شبكة البطاقات تمتد على عرض شبكة المهام بالكامل */
+            .tasks-container > .pro-cards-grid { grid-column: 1 / -1; }
+            .pro-card {
+                max-width: none; /* السماح بملء العمود بالكامل */
+                width: 100%;
+            }
+        }
+
+        /* شاشات كبيرة جداً: 3 بطاقات في الصف */
+        @media (min-width: 1400px) {
+            .pro-cards-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 28px;
+            }
+            .pro-card { padding: 18px; }
+            .pro-card .icon-wrapper { width: 72px; height: 72px; font-size: 32px; }
+        }
+
+        /* شاشات فائقة الاتساع: 4 بطاقات في الصف */
+        @media (min-width: 1800px) {
+            .pro-cards-grid { grid-template-columns: repeat(4, 1fr); }
+            .pro-card .icon-wrapper { width: 76px; height: 76px; font-size: 34px; }
+        }
+    </style>
+</head>
+<body id="appBody">
+
+    <!-- [تعديل] شاشة الترحيب بلمسة الهاكرز -->
+    <div id="splash-screen" style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #0A0A0A; /* خلفية سوداء داكنة جداً */
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
+        font-family: 'Orbitron', 'Courier New', monospace; /* خط تقني واحترافي */
+    ">
+        <!-- [إضافة جديدة] خلفية الرموز المتساقطة -->
+        <div id="matrix-background"></div>
+        <div class="splash-content" style="text-align: center;">
+            <div class="logo-container glitch-wrapper" style="margin-bottom: 40px;">
+                <span class="logo glitch" data-text="TaskFlow Pro" style="font-size: 3rem; color: #FF073A; text-shadow: 0 0 8px rgba(255, 7, 58, 0.8), 0 0 12px rgba(255, 7, 58, 0.6);">TaskFlow Pro</span>
+                <div class="tagline" style="font-size: 1rem; text-align: center; color: #FF073A; opacity: 0.8; margin-top: 15px; letter-spacing: 3px; font-weight: 700; text-transform: uppercase;">
+                    <span class="glitch-subtle" data-text="[ Emperortech AI ]">[ Emperortech AI ]</span>
+                </div>
+            </div>
+            <div class="loader" style="
+                /* [تعديل] تغيير لون اللودر إلى الأحمر */
+                border: 5px solid rgba(255, 7, 58, 0.2);
+                border-top: 5px solid #FF073A;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                animation: spin 1.5s linear infinite;
+                margin: 0 auto 25px auto;
+            "></div>
+            <p id="hacker-text" class="splash-message" style="
+                color: #FF073A;
+                font-weight: 600;
+                text-shadow: 0 0 5px rgba(255, 7, 58, 0.5);
+                font-size: 1.1rem;
+            "></p>
+        </div>
+    </div>
+    <style>
+        /* [إضافة جديدة] تنسيقات خلفية الرموز المتساقطة */
+        #matrix-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1; /* خلف المحتوى */
+        }
+        .matrix-column {
+            position: absolute;
+            color: #FF073A;
+            font-family: 'Courier New', monospace;
+            writing-mode: vertical-rl; /* يجعل النص عمودياً */
+            text-orientation: upright;
+            white-space: nowrap;
+            user-select: none;
+            text-shadow: 0 0 8px rgba(255, 7, 58, 0.7);
+            animation: fall linear infinite;
+        }
+        @keyframes fall {
+            from {
+                transform: translateY(-100%); /* [تعديل] تبدأ الحركة من خارج الشاشة من الأعلى */
+            }
+            to { 
+                transform: translateY(100vh); /* تنتهي الحركة أسفل الشاشة */
+            }
+        }
+        /* [إضافة جديدة] تأثير الـ Glitch */
+        .glitch-wrapper {
+            position: relative;
+        }
+        .glitch {
+            position: relative;
+            animation: glitch-skew 1s infinite linear alternate-reverse;
+        }
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0D0208;
+            overflow: hidden; /* [تعديل] إبقاء الخلفية سوداء */
+        }
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 #00ffff; /* [تعديل] تغيير لون الظل إلى سماوي مرعب */
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+        .glitch::after {
+            left: -2px;
+            text-shadow: -2px 0 #ff00c1, 2px 2px #00ffff; /* [تعديل] تغيير ألوان الظل */
+            clip: rect(85px, 450px, 90px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+        /* [إضافة جديدة] تأثير Glitch خفيف لاسم الشركة */
+        .glitch-subtle::before {
+            content: attr(data-text);
+            position: absolute;
+            left: -1px;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: #0A0A0A;
+            overflow: hidden;
+            text-shadow: 1px 0 #00ffff;
+            animation: glitch-anim-subtle 8s infinite linear alternate-reverse;
+        }
+        @keyframes glitch-anim-subtle {
+            0% { clip: rect(20px, 9999px, 22px, 0); }
+            100% { clip: rect(25px, 9999px, 28px, 0); }
+        }
+        @keyframes glitch-anim {
+            0% { clip: rect(42px, 9999px, 44px, 0); transform: skew(0.3deg); }
+            5% { clip: rect(17px, 9999px, 96px, 0); }
+            /* ... (بقية الإطارات) ... */
+            100% { clip: rect(90px, 9999px, 98px, 0); transform: skew(0.6deg); } /* [تعديل] زيادة التأثير */
+        }
+        @keyframes glitch-anim2 {
+            0% { clip: rect(8px, 9999px, 100px, 0); transform: skew(0.5deg); }
+            /* ... (بقية الإطارات) ... */
+            100% { clip: rect(1px, 9999px, 45px, 0); transform: skew(0.8deg); }
+        }
+        @keyframes glitch-skew {
+            0% { transform: skew(-1deg); } /* [تعديل] زيادة التأثير */
+            100% { transform: skew(1deg); }
+        }
+
+        #splash-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
+    <div class="task-manager-app">
+        <!-- الرأس/الهيدر -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="logo-container">
+                    <span class="logo">TaskFlow Pro</span>
+                    <div class="tagline" style="font-size: 0.75rem; opacity: 0.9;">Emperortech AI</div>
+                </div>
+            </div>
+            <div class="header-right">
+                <i id="searchBtn" class="fas fa-search icon"></i>
+                <i id="settingsBtn" class="fas fa-cog icon"></i>
+                <!-- زر التبديل للوضع الليلي -->
+                <i id="darkModeToggle" class="fas fa-moon icon"></i>
+                <button id="loginBtn" class="add-task-btn" style="display: none;">
+                    <i class="fas fa-user-edit"></i> <span id="loginBtnText">تسجيل الدخول</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="app-body">
+            <!-- الشريط الجانبي (المشاريع) -->
+            <nav class="sidebar">
+                <h3 class="section-title">القائمة</h3>
+                <div class="project-item active" data-target="dashboard-section">
+                    <i class="fas fa-home" style="color: var(--blue-p);"></i>
+                    <span>لوحة اليوم</span>
+                </div>
+                <div class="project-item" data-target="file-manager-section">
+                    <i class="fas fa-folder-open" style="color: var(--orange-p);"></i>
+                    <span>ملفاتي</span>
+                </div>
+                <div class="project-item" data-target="quick-notes-section">
+                    <i class="fas fa-lightbulb" style="color: var(--green-p);"></i>
+                    <span>ملاحظات سريعة</span>
+                </div>
+                <div class="project-item" data-target="settings-section">
+                    <i class="fas fa-cog" style="color: var(--purple-p);"></i>
+                    <span>الإعدادات</span>
+                </div>
+            </nav>
+
+            <!-- [إضافة جديدة] شريط التنقل السفلي للهواتف -->
+            <nav class="mobile-nav">
+                <div class="mobile-nav-item active" data-target="dashboard-section">
+                    <i class="fas fa-home"></i> 
+                    <span>الرئيسية</span>
+                </div>
+                <div class="mobile-nav-item" data-target="file-manager-section">
+                    <i class="fas fa-folder-open"></i> 
+                    <span>ملفاتي</span>
+                </div>
+                <div class="mobile-nav-item" data-target="quick-notes-section">
+                    <i class="fas fa-lightbulb"></i> 
+                    <span>ملاحظات</span>
+                </div>
+                <div class="mobile-nav-item" data-target="settings-section">
+                    <i class="fas fa-cog"></i> 
+                    <span>الإعدادات</span>
+                </div>
+            </nav>
+
+
+            <!-- المحتوى الرئيسي (المهام) -->
+            <main class="main-content" id="dashboard-section">
+                <!-- [تعديل] بطاقة الترحيب بتصميم My Decor Manager -->
+                <div class="welcome-card">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                        <div>
+                            <h2 id="welcomeUserName" style="margin:0;font-weight:800; color: white; font-size: 1.3rem;">أهلاً بك، بلال بورابعة</h2>
+                            <p id="welcomeUserTitle" style="margin:4px 0 15px;opacity:.9; color: rgba(255,255,255,0.9); font-size: 0.85rem;">ما هي خططك لليوم؟</p>
+                            <button class="add-task-btn" style="width: auto; height: auto; padding: 8px 16px; border-radius: 10px; font-size: 0.9rem; gap: 8px; background: rgba(255,255,255,0.9); color: var(--primary-color); box-shadow: none;">
+                                <i class="fas fa-plus"></i> <span>مهمة جديدة</span>
+                            </button>
+                        </div>
+                        <div style="font-size: 3.5rem; color: rgba(255,255,255,0.2); transform: rotate(-15deg); opacity: 0.5;">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- [إضافة جديدة] بطاقة التاريخ والإجراءات السريعة -->
+                <div class="date-info-card">
+                    <div style="display:flex; align-items:center; gap: 15px;">
+                        <div style="font-size: 2.5rem; color: rgba(255, 255, 255, 0.7);"><i class="fas fa-calendar-day"></i></div>
+                        <div>
+                            <div id="current-date-display-card" class="date-display"></div>
+                            <div class="date-label">تاريخ اليوم</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="add-task-btn icon-btn-card" title="مساعد الذكاء الاصطناعي">
+                            <i class="fas fa-robot"></i>
+                        </button>
+                        <button class="add-task-btn icon-btn-card" onclick="location.reload()" title="تحديث البيانات">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <h1 class="main-title" style="display: none;">لوحة اليوم</h1>
+
+                <div class="tasks-container">
+                    <!-- تم إزالة أقسام المهام بناءً على الطلب -->
+                    <!-- [إضافة جديدة] شبكة البطاقات الاحترافية -->
+                    <div class="pro-cards-grid">
+                        <div class="pro-card">
+                            <div class="icon-wrapper" style="background: linear-gradient(135deg,#06b6d4,#0284c7);"><i class="fas fa-tasks"></i></div>
+                            <div>
+                                <div class="card-title">بطاقة رقم 1</div>
+                                <div class="card-desc">وصف مختصر للبطاقة الأولى</div>
+                            </div>
+                        </div>
+                        <div class="pro-card">
+                            <div class="icon-wrapper" style="background: linear-gradient(135deg,#10b981,#059669);"><i class="fas fa-calendar-check"></i></div>
+                            <div>
+                                <div class="card-title">بطاقة رقم 2</div>
+                                <div class="card-desc">وصف مختصر للبطاقة الثانية</div>
+                            </div>
+                        </div>
+                        <div class="pro-card">
+                            <div class="icon-wrapper" style="background: linear-gradient(135deg,#f97316,#f59e0b);"><i class="fas fa-paper-plane"></i></div>
+                            <div>
+                                <div class="card-title">بطاقة رقم 3</div>
+                                <div class="card-desc">وصف مختصر للبطاقة الثالثة</div>
+                            </div>
+                        </div>
+                        <div class="pro-card">
+                            <div class="icon-wrapper" style="background: linear-gradient(135deg,#64748b,#475569);"><i class="fas fa-user-circle"></i></div>
+                            <div>
+                                <div class="card-title">بطاقة رقم 4</div>
+                                <div class="card-desc">وصف مختصر للبطاقة الرابعة</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            <!-- قسم الملاحظات السريعة (مخفي افتراضياً) -->
+            <section class="quick-notes-section" id="quick-notes-section">
+                <h1 class="main-title">ملاحظات سريعة</h1>
+                <div class="add-note-container">
+                    <textarea id="newNoteInput" placeholder="اكتب فكرة سريعة..."></textarea>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span id="noteSaveStatus" style="color: var(--secondary-color); font-weight: 600; display: none;">
+                            <i class="fas fa-check-circle"></i> تم الحفظ بنجاح
+                        </span>
+                        <button id="addNoteBtn" class="add-task-btn" style="padding: 10px 25px;">إضافة ملاحظة</button>
+                    </div>
+                </div>
+                <div class="notes-list-container" id="notesListContainer">
+                    <!-- الملاحظات المحفوظة ستظهر هنا -->
+                </div>
+            </section>
+
+            <!-- قسم مدير الملفات (مخفي افتراضياً) -->
+            <section class="file-manager-section" id="file-manager-section">
+                <h1 class="main-title">ملفاتي</h1>
+                <!-- فلاتر الملفات -->
+                <div class="file-filters">
+                    <span class="filter-btn active" data-filter="all">الكل</span>
+                    <span class="filter-btn" data-filter="image">صور</span>
+                    <span class="filter-btn" data-filter="video">فيديوهات</span>
+                    <span class="filter-btn" data-filter="audio">صوتيات</span>
+                    <span class="filter-btn" data-filter="document">مستندات</span>
+                </div>
+                <div class="file-upload-area" onclick="document.getElementById('fileInput').click()">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: var(--grey-text); margin-bottom: 20px;"></i>
+                    <p style="font-size: 1.2rem; font-weight: 600;">اسحب وأفلت الملفات هنا أو انقر للرفع</p>
+                    <small style="color: var(--grey-text);">يمكنك رفع الصور، الفيديوهات، والمستندات</small>
+                </div>
+                <input type="file" id="fileInput" multiple style="display: none;">
+                <!-- حاوية عرض الملفات -->
+                <div class="file-list-container" id="fileListContainer">
+                    <!-- الملفات التي يتم رفعها ستظهر هنا -->
+                </div>
+            </section>
+
+            <!-- [إضافة جديدة] قسم الإعدادات كواجهة -->
+            <section class="settings-section" id="settings-section">
+                <h1 class="main-title">الإعدادات</h1>
+
+                <!-- الشاشة الرئيسية للإعدادات -->
+                <div id="settingsMainView">
+                    <div class="setting-item-clickable" id="manageSecurityBtn">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <i class="fas fa-shield-alt" style="color: var(--primary-color); font-size: 1.2rem;"></i>
+                            <span style="font-weight: 700; font-size: 1rem;">إدارة حماية الملفات</span>
+                        </div>
+                        <i class="fas fa-chevron-left" style="color: var(--grey-text);"></i>
+                    </div>
+                    <!-- يمكن إضافة إعدادات أخرى هنا مستقبلاً -->
+                </div>
+
+                <!-- شاشة إدارة الحماية (مخفية) -->
+                <div id="settingsPinView" style="display: none;">
+                    <button id="settingsBackBtn" class="add-task-btn" style="margin-bottom: 20px; background: var(--border-color); color: var(--dark-text); box-shadow: none; gap: 8px;">
+                        <i class="fas fa-arrow-right"></i> <span>العودة للإعدادات</span>
+                    </button>
+
+                    <!-- قسم يظهر عند تفعيل الحماية -->
+                    <div id="managePinSection" class="pin-change-form" style="display: none;">
+                        <p class="setting-title" style="text-align: center; font-size: 1.2rem;">تغيير رمز الحماية</p>
+                        <input type="password" id="currentPinInput" class="pin-input" placeholder="الرمز الحالي" maxlength="4" autocomplete="off">
+                        <input type="password" id="newPinInput" class="pin-input" placeholder="الرمز الجديد (اختياري)" maxlength="4" autocomplete="off">
+                        <input type="password" id="confirmNewPinInput" class="pin-input" placeholder="تأكيد الرمز الجديد" maxlength="4" autocomplete="off">
+                        <button id="savePinChangesBtn" class="add-task-btn" style="width: 100%; margin-top: 10px;">تغيير الرمز</button>
+                        <hr>
+                        <button id="disablePinBtn" class="btn-danger" style="width: 100%; padding: 14px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer;">تعطيل الحماية</button>
+                    </div>
+                    <!-- قسم يظهر عند تعطيل الحماية -->
+                    <div id="enablePinSection" class="pin-change-form" style="display: none;">
+                        <p style="text-align: center; color: var(--grey-text); margin-bottom: 20px;">الحماية غير مفعلة. قم بتعيين رمز لتفعيلها.</p>
+                        <input type="password" id="enableNewPinInput" class="pin-input" placeholder="الرمز الجديد" maxlength="4" autocomplete="off">
+                        <input type="password" id="enableConfirmPinInput" class="pin-input" placeholder="تأكيد الرمز الجديد" maxlength="4" autocomplete="off">
+                        <button id="enablePinBtn" class="add-task-btn" style="width: 100%; margin-top: 10px;">تفعيل الحماية</button>
+                    </div>
+                    <p id="pinChangeStatus" style="display: none; margin-top: 10px; font-weight: 600; text-align: center;"></p>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- نافذة المعاينة المنبثقة (Modal) -->
+    <div class="preview-modal" id="previewModal">
+        <div class="preview-modal-content">
+            <div class="preview-header">
+                <p class="file-name" id="previewFileName"></p>
+                <i class="fas fa-times close-btn" id="closePreviewModal"></i>
+            </div>
+            <div class="preview-body" id="previewBody">
+                <!-- محتوى المعاينة (صورة، فيديو، الخ) سيتم إضافته هنا -->
+            </div>
+            <div class="preview-footer" style="text-align: center; margin-top: 20px;">
+                <a id="downloadButton" class="add-task-btn" style="text-decoration: none;"><i class="fas fa-download"></i> تحميل الملف</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تأكيد الحذف -->
+    <div class="confirm-modal" id="confirmDeleteModal">
+        <div class="confirm-modal-content">
+            <h4>تأكيد الحذف</h4>
+            <p id="confirmModalText">هل أنت متأكد أنك تريد حذف هذا العنصر؟<br>لا يمكن التراجع عن هذا الإجراء.</p>
+            <div class="confirm-modal-actions">
+                <button id="cancelDeleteBtn" class="btn-secondary">إلغاء</button>
+                <button id="confirmDeleteBtn" class="btn-danger">نعم، احذف</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة إدخال رمز PIN -->
+    <div class="pin-modal" id="pinModal">
+        <div class="pin-modal-content">
+            <i class="fas fa-shield-alt" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 20px;"></i>
+            <h4 id="pinModalTitle">تعيين رمز PIN</h4>
+            <p id="pinModalMessage">لحماية ملفاتك، يرجى تعيين رمز PIN مكون من 4 أرقام.</p>
+            <div class="pin-input-container">
+                <input type="password" id="pinInput" class="pin-input" maxlength="4" pattern="\d*">
+            </div>
+            <div class="pin-input-container" id="confirmPinContainer" style="display: none;">
+                <input type="password" id="confirmPinInput" class="pin-input" maxlength="4" pattern="\d*">
+            </div>
+            <p id="pinErrorMessage" style="color: #E53935; display: none;"></p>
+            <button id="pinSubmitBtn" class="add-task-btn" style="width: 100%;">حفظ</button>
+        </div>
+    </div>
+
+    <!-- نافذة تسجيل الدخول/تحديث المعلومات -->
+    <div class="confirm-modal" id="loginModal" style="z-index: 1005;">
+        <div class="confirm-modal-content login-modal-content" style="text-align: right;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h4 style="margin: 0; font-size: 1.1rem;">تحديث معلوماتك</h4>
+                <i class="fas fa-times close-btn" style="cursor: pointer; font-size: 1.2rem;" onclick="closeLoginModal()"></i>
+            </div>
+            <div style="text-align: center; margin-bottom: 15px;">
+                <img id="profileImagePreview" src="images/billel.png" alt="معاينة الصورة" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-color); cursor: pointer;" onclick="document.getElementById('profileImageInput').click()">
+                <input type="file" id="profileImageInput" accept="image/*" style="display: none;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="fullNameInput" style="display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.9rem;">الاسم الكامل</label>
+                <input type="text" id="fullNameInput" placeholder="أدخل اسمك هنا..." style="width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border-color); background-color: var(--light-bg); color: var(--dark-text); font-size: 0.9rem;">
+            </div>
+            <div class="confirm-modal-actions" style="justify-content: flex-end;">
+                <button id="cancelLoginBtn" class="btn-secondary" onclick="closeLoginModal()">إلغاء</button>
+                <button id="saveLoginBtn" class="add-task-btn" style="width: auto; height: auto; padding: 10px 25px; border-radius: 12px; font-size: 0.9rem;">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* ------------------------------------ أكواد JavaScript ------------------------------------ */
+        
+        // --- [دمج الأكواد] ---
+        // تم نقل جميع أكواد JavaScript إلى كتلة واحدة في الأسفل لضمان الترتيب الصحيح للتنفيذ.
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.getElementById('appBody');
+            const icon = document.getElementById('darkModeToggle');
+            updateWelcomeCard(); // تحديث بطاقة الترحيب بالبيانات المحفوظة
+
+            if (savedTheme === 'dark') {
+                body.classList.add('dark-mode');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                 icon.classList.remove('fa-sun');
+                 icon.classList.add('fa-moon');
+            }
+             
+            // تفاعل القائمة الجانبية
+
+            // ... (الكود الحالي للتنقل)
+            const projectItems = document.querySelectorAll('.project-item');
+            const mainContent = document.getElementById('dashboard-section');
+            const fileManager = document.getElementById('file-manager-section');
+            const quickNotes = document.getElementById('quick-notes-section');
+            const settingsSection = document.getElementById('settings-section'); // [إضافة جديدة]
+
+            // قائمة بجميع الأقسام الرئيسية
+            const mainSections = [mainContent, fileManager, quickNotes, settingsSection]; // [تعديل]
+
+            function navigateToSection(targetId) {
+                const savedPin = localStorage.getItem('taskFlowPin');
+                // إخفاء جميع الأقسام أولاً
+                mainSections.forEach(section => section.style.display = 'none');
+
+                if (targetId === 'file-manager-section' && savedPin) {
+                    promptForPin(); // طلب الرمز فقط إذا كانت الحماية مفعلة
+                } else {
+                    document.getElementById(targetId || 'dashboard-section').style.display = 'block';
+                }
+            }
+
+            function setupNavigation(navItems) {
+                navItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        navItems.forEach(i => i.classList.remove('active'));
+                        item.classList.add('active');
+                        const targetId = item.dataset.target;
+                        navigateToSection(targetId);
+                    });
+                });
+            }
+
+            setupNavigation(document.querySelectorAll('.project-item'));
+            setupNavigation(document.querySelectorAll('.mobile-nav-item'));
+
+            // جعل "لوحة اليوم" نشطة عند التحميل
+            document.querySelector('.project-item[data-target="dashboard-section"]').classList.add('active');
+            document.querySelector('.mobile-nav-item[data-target="dashboard-section"]').classList.add('active');
+
+            // --- [إضافة جديدة] وظائف نافذة الإعدادات ---
+            const settingsBtn = document.getElementById('settingsBtn');
+            const settingsMainView = document.getElementById('settingsMainView');
+            const settingsPinView = document.getElementById('settingsPinView');
+            const manageSecurityBtn = document.getElementById('manageSecurityBtn');
+            const settingsBackBtn = document.getElementById('settingsBackBtn');
+
+            settingsBtn.addEventListener('click', () => {
+                // تفعيل زر الإعدادات في القائمة والتنقل إليه
+                document.querySelectorAll('.project-item, .mobile-nav-item').forEach(i => i.classList.remove('active'));
+                document.querySelector('.project-item[data-target="settings-section"]').classList.add('active');
+                document.querySelector('.mobile-nav-item[data-target="settings-section"]').classList.add('active');
+                navigateToSection('settings-section');
+            });
+
+            manageSecurityBtn.addEventListener('click', () => {
+                const savedPin = localStorage.getItem('taskFlowPin');
+                const manageSection = document.getElementById('managePinSection');
+                const enableSection = document.getElementById('enablePinSection');
+
+                if (savedPin) {
+                    manageSection.style.display = 'flex';
+                    enableSection.style.display = 'none';
+                } else {
+                    manageSection.style.display = 'none';
+                    enableSection.style.display = 'flex';
+                }
+
+                // الانتقال إلى شاشة إدارة الحماية
+                settingsMainView.style.display = 'none';
+                settingsPinView.style.display = 'block';
+                document.getElementById('pinChangeStatus').style.display = 'none';
+            });
+
+            settingsBackBtn.addEventListener('click', () => {
+                // العودة إلى الشاشة الرئيسية للإعدادات
+                settingsMainView.style.display = 'block';
+                settingsPinView.style.display = 'none';
+            });
+
+            // --- [إضافة جديدة] وظيفة تغيير رمز PIN ---
+            // (تم نقل الكود إلى داخل مستمع حدث جديد)
+            setupPinManagement();
+
+            function setupPinManagement() {
+            const pinChangeStatus = document.getElementById('pinChangeStatus');
+
+            const savePinChangesBtn = document.getElementById('savePinChangesBtn');
+            savePinChangesBtn.addEventListener('click', () => {
+                const currentPinInput = document.getElementById('currentPinInput');
+                const newPinInput = document.getElementById('newPinInput');
+                const confirmNewPinInput = document.getElementById('confirmNewPinInput');
+
+                const savedPin = localStorage.getItem('taskFlowPin');
+
+                // التحقق من الرمز الحالي
+                if (!savedPin || currentPinInput.value !== savedPin) {
+                    pinChangeStatus.textContent = 'الرمز الحالي غير صحيح.';
+                    pinChangeStatus.style.color = '#E53935'; // أحمر
+                    pinChangeStatus.style.display = 'block';
+                    return;
+                }
+
+                // التحقق من الرمز الجديد
+                if (newPinInput.value.length !== 4) {
+                    pinChangeStatus.textContent = 'الرمز الجديد يجب أن يتكون من 4 أرقام.';
+                    pinChangeStatus.style.color = '#E53935';
+                    pinChangeStatus.style.display = 'block';
+                    return;
+                }
+
+                if (newPinInput.value !== confirmNewPinInput.value) {
+                    pinChangeStatus.textContent = 'الرمزان الجديدان غير متطابقان.';
+                    pinChangeStatus.style.color = '#E53935';
+                    pinChangeStatus.style.display = 'block';
+                    return;
+                }
+
+                // حفظ الرمز الجديد
+                localStorage.setItem('taskFlowPin', newPinInput.value);
+                pinChangeStatus.textContent = 'تم تغيير رمز PIN بنجاح!';
+                pinChangeStatus.style.color = 'var(--secondary-color)'; // أخضر
+                pinChangeStatus.style.display = 'block';
+                // إفراغ الحقول بعد النجاح
+                currentPinInput.value = '';
+                newPinInput.value = '';
+                confirmNewPinInput.value = '';
+            });
+
+            const disablePinBtn = document.getElementById('disablePinBtn');
+            disablePinBtn.addEventListener('click', () => {
+                const currentPinInput = document.getElementById('currentPinInput');
+                const savedPin = localStorage.getItem('taskFlowPin');
+
+                if (!savedPin || currentPinInput.value !== savedPin) {
+                    pinChangeStatus.textContent = 'خطأ: الرمز الحالي الذي أدخلته غير صحيح.';
+                    pinChangeStatus.style.color = '#E53935';
+                    pinChangeStatus.style.display = 'block';
+                    return;
+                }
+
+                localStorage.removeItem('taskFlowPin');
+                pinChangeStatus.textContent = 'تم تعطيل الحماية بنجاح.';
+                pinChangeStatus.style.color = 'var(--secondary-color)';
+                pinChangeStatus.style.display = 'block';
+                
+                // إخفاء قسم الإدارة وإظهار قسم التفعيل
+                document.getElementById('managePinSection').style.display = 'none';
+                document.getElementById('enablePinSection').style.display = 'flex';
+            });
+
+            const enablePinBtn = document.getElementById('enablePinBtn');
+            enablePinBtn.addEventListener('click', () => {
+                const newPinInput = document.getElementById('enableNewPinInput');
+                const confirmPinInput = document.getElementById('enableConfirmPinInput');
+
+                if (newPinInput.value.length !== 4) {
+                    pinChangeStatus.textContent = 'الرمز الجديد يجب أن يتكون من 4 أرقام.';
+                    pinChangeStatus.style.color = '#E53935';
+                    pinChangeStatus.style.display = 'block';
+                    return;
+                }
+                if (newPinInput.value !== confirmPinInput.value) {
+                    pinChangeStatus.textContent = 'الرمزان الجديدان غير متطابقان.';
+                    pinChangeStatus.style.color = '#E53935';
+                    pinChangeStatus.style.display = 'block';
+                    return;
+                }
+
+                localStorage.setItem('taskFlowPin', newPinInput.value);
+                pinChangeStatus.textContent = 'تم تفعيل الحماية بنجاح!';
+                pinChangeStatus.style.color = 'var(--secondary-color)';
+                pinChangeStatus.style.display = 'block';
+
+                document.getElementById('managePinSection').style.display = 'flex';
+                document.getElementById('enablePinSection').style.display = 'none';
+                // إفراغ الحقول بعد النجاح
+                newPinInput.value = '';
+                confirmPinInput.value = '';
+            });
+            }
+
+            // --- [إضافة جديدة] وظائف رمز PIN ---
+            const pinModal = document.getElementById('pinModal');
+            const pinModalTitle = document.getElementById('pinModalTitle');
+            const pinModalMessage = document.getElementById('pinModalMessage');
+            const pinInput = document.getElementById('pinInput');
+            const confirmPinContainer = document.getElementById('confirmPinContainer');
+            const confirmPinInput = document.getElementById('confirmPinInput');
+            const pinErrorMessage = document.getElementById('pinErrorMessage');
+            const pinSubmitBtn = document.getElementById('pinSubmitBtn');
+
+            function showFileManager() {
+                document.getElementById('dashboard-section').style.display = 'none';
+                document.getElementById('file-manager-section').style.display = 'block';
+            }
+
+            function promptForPin() {
+                const savedPin = localStorage.getItem('taskFlowPin');
+                pinModal.style.display = 'flex';
+                pinInput.value = '';
+                confirmPinInput.value = '';
+                pinErrorMessage.style.display = 'none';
+
+                if (savedPin) { // إذا كان هناك رمز محفوظ
+                    pinModalTitle.textContent = 'إدخال رمز PIN';
+                    pinModalMessage.textContent = 'للوصول إلى ملفاتك، يرجى إدخال رمز الحماية.';
+                    confirmPinContainer.style.display = 'none';
+                    pinSubmitBtn.textContent = 'فتح';
+                    pinSubmitBtn.onclick = () => verifyPin(savedPin);
+                } else { // إذا كانت أول مرة
+                    pinModalTitle.textContent = 'تعيين رمز PIN';
+                    pinModalMessage.textContent = 'لحماية ملفاتك، يرجى تعيين رمز PIN مكون من 4 أرقام.';
+                    confirmPinContainer.style.display = 'block';
+                    pinSubmitBtn.textContent = 'حفظ';
+                    pinSubmitBtn.onclick = setPin;
+                }
+            }
+
+            function setPin() {
+                if (pinInput.value.length !== 4) {
+                    pinErrorMessage.textContent = 'يجب أن يتكون الرمز من 4 أرقام.';
+                    pinErrorMessage.style.display = 'block';
+                    return;
+                }
+                if (pinInput.value !== confirmPinInput.value) {
+                    pinErrorMessage.textContent = 'الرمزان غير متطابقان.';
+                    pinErrorMessage.style.display = 'block';
+                    return;
+                }
+                localStorage.setItem('taskFlowPin', pinInput.value);
+                pinModal.style.display = 'none';
+                showFileManager();
+            }
+
+            function verifyPin(savedPin) {
+                if (pinInput.value === savedPin) {
+                    pinModal.style.display = 'none';
+                    showFileManager();
+                } else {
+                    pinErrorMessage.textContent = 'رمز PIN غير صحيح.';
+                    pinErrorMessage.style.display = 'block';
+                    pinInput.value = '';
+                }
+            }
+
+            pinModal.addEventListener('click', (e) => {
+                if (e.target === pinModal) pinModal.style.display = 'none';
+            });
+
+            // --- [إضافة جديدة] إعداد قاعدة البيانات (الذاكرة القوية) ---
+            let db;
+            function initDB() {
+                const request = indexedDB.open('TaskFlowProDB', 2); // [الإصلاح] ترقية إصدار قاعدة البيانات
+
+                request.onerror = (event) => {
+                    console.error("خطأ في قاعدة البيانات:", event.target.errorCode);
+                };
+
+                request.onsuccess = (event) => {
+                    db = event.target.result;
+                    console.log("قاعدة البيانات فُتحت بنجاح.");
+                    loadFilesFromDB(); // تحميل الملفات
+                    loadNotesFromDB(); // [الإصلاح] تحميل الملاحظات هنا
+                };
+
+                request.onupgradeneeded = (event) => {
+                    let db = event.target.result;
+                    if (!db.objectStoreNames.contains('files')) {
+                        db.createObjectStore('files', { keyPath: 'id', autoIncrement: true });
+                        console.log("تم إنشاء مخزن الملفات.");
+                    }
+                    if (!db.objectStoreNames.contains('notes')) {
+                        db.createObjectStore('notes', { keyPath: 'id', autoIncrement: true });
+                        console.log("تم إنشاء مخزن الملاحظات.");
+                    }
+                };
+            }
+
+            function loadFilesFromDB() {
+                const fileListContainer = document.getElementById('fileListContainer');
+                fileListContainer.innerHTML = ''; // إفراغ القائمة قبل التحميل
+                if (!db) return;
+                const transaction = db.transaction(['files'], 'readonly');
+                const objectStore = transaction.objectStore('files');
+                const request = objectStore.getAll();
+
+                request.onsuccess = () => {
+                    const filesData = request.result;
+                    filesData.forEach(fileData => {
+                        // لا نستخدم handleFiles هنا لتجنب الحفظ المزدوج
+                        // بل نستخدم دالة عرض مخصصة
+                        displayFile(fileData.file, fileData.id);
+                    });
+                };
+            }
+
+            function loadNotesFromDB() {
+                const notesListContainer = document.getElementById('notesListContainer');
+                notesListContainer.innerHTML = ''; // إفراغ القائمة قبل التحميل
+                if (!db) return;
+                const transaction = db.transaction(['notes'], 'readonly');
+                const objectStore = transaction.objectStore('notes');
+                const request = objectStore.getAll();
+
+                request.onsuccess = () => {
+                    const notesData = request.result;
+                    notesData.forEach(noteData => displayNote(noteData));
+                };
+            }
+
+            function saveFileToDB(file) {
+                if (!db) return;
+                const transaction = db.transaction(['files'], 'readwrite');
+                const objectStore = transaction.objectStore('files');
+                const request = objectStore.add({ file: file });
+                
+                request.onerror = () => console.error("لم يتم حفظ الملف في قاعدة البيانات.");
+                request.onsuccess = () => console.log("تم حفظ الملف بنجاح في قاعدة البيانات.");
+            }
+
+            function deleteFileFromDB(fileId) {
+                if (!db) return;
+                const transaction = db.transaction(['files'], 'readwrite');
+                const objectStore = transaction.objectStore('files');
+                objectStore.delete(fileId);
+            }
+
+            function saveNoteToDB(noteText) {
+                if (!db) return;
+                const transaction = db.transaction(['notes'], 'readwrite');
+                const objectStore = transaction.objectStore('notes');
+                const request = objectStore.add({ text: noteText, createdAt: new Date() });
+                
+                request.onsuccess = () => {
+                    loadNotesFromDB(); // إعادة تحميل الملاحظات لإظهار الإضافة الجديدة
+                    const status = document.getElementById('noteSaveStatus');
+                    status.style.display = 'inline'; // إظهار رسالة التأكيد
+                    setTimeout(() => {
+                        status.style.display = 'none'; // إخفاء الرسالة بعد ثانيتين
+                    }, 2000);
+                };
+            }
+
+            function deleteNoteFromDB(noteId) {
+                if (!db) return;
+                const transaction = db.transaction(['notes'], 'readwrite');
+                const objectStore = transaction.objectStore('notes');
+                objectStore.delete(noteId);
+            }
+
+            initDB(); // بدء تشغيل قاعدة البيانات
+
+            // 4. تفعيل وظيفة رفع الملفات
+            const fileInput = document.getElementById('fileInput');
+            const fileUploadArea = document.querySelector('.file-upload-area');
+            const fileListContainer = document.getElementById('fileListContainer');
+
+            // عند تغيير حقل الإدخال (بعد اختيار الملفات)
+            fileInput.addEventListener('change', (event) => {
+                handleFiles(event.target.files);
+            });
+
+            // تفعيل السحب والإفلات
+            fileUploadArea.addEventListener('dragover', (event) => {
+                event.preventDefault(); // منع السلوك الافتراضي للمتصفح
+                fileUploadArea.style.borderColor = 'var(--primary-color)';
+            });
+
+            fileUploadArea.addEventListener('dragleave', () => {
+                fileUploadArea.style.borderColor = 'var(--border-color)';
+            });
+
+            fileUploadArea.addEventListener('drop', (event) => {
+                event.preventDefault(); // منع فتح الملف في المتصفح
+                fileUploadArea.style.borderColor = 'var(--border-color)';
+                handleFiles(event.dataTransfer.files);
+            });
+
+            // دالة لمعالجة وعرض الملفات
+            function handleFiles(files) {
+                if (!files.length) return;
+                for (const file of files) {
+                    saveFileToDB(file); // حفظ الملف في قاعدة البيانات أولاً
+                    // سيتم عرض الملفات عند النجاح من خلال `loadFilesFromDB` أو يمكننا عرضه مباشرة
+                    // للعرض الفوري، سنعيد استخدام الكود
+                    // ملاحظة: عند الحفظ والتحميل، قد نحصل على ID. للتبسيط، سنعتمد على إعادة التحميل أو العرض المباشر
+                }
+                // لإظهار الملفات فوراً بدون إعادة تحميل
+                // نفرغ القائمة ونعيد تحميلها من قاعدة البيانات
+                fileListContainer.innerHTML = '';
+                loadFilesFromDB();
+            }
+
+            // --- [إضافة جديدة] وظائف الملاحظات السريعة ---
+            const newNoteInput = document.getElementById('newNoteInput');
+            const addNoteBtn = document.getElementById('addNoteBtn');
+
+            addNoteBtn.addEventListener('click', () => {
+                const noteText = newNoteInput.value.trim();
+                if (noteText) {
+                    saveNoteToDB(noteText);
+                    newNoteInput.value = ''; // إفراغ الحقل
+                }
+            });
+
+            function displayNote(noteData) {
+                const noteItem = document.createElement('div');
+                noteItem.className = 'note-item';
+                noteItem.innerHTML = `
+                    <p class="note-content">${noteData.text}</p>
+                    <div class="note-actions">
+                        <i class="fas fa-trash-alt icon" title="حذف الملاحظة"></i>
+                    </div>
+                `;
+
+                noteItem.querySelector('.fa-trash-alt').addEventListener('click', (event) => deleteNoteWithConfirmation(event, noteItem, noteData.id));
+
+                document.getElementById('notesListContainer').appendChild(noteItem);
+            }
+
+            // دالة جديدة لعرض الملف فقط (بدون حفظ)
+            function displayFile(file, fileId) {
+                const fileURL = URL.createObjectURL(file);
+                const fileItem = document.createElement('div');
+                const fileType = getFileType(file.type);
+                fileItem.className = `file-item`;
+                fileItem.dataset.fileType = fileType;
+                fileItem.dataset.fileId = fileId; // حفظ معرّف الملف من قاعدة البيانات
+
+                fileItem.addEventListener('click', () => openPreviewModal(file, fileURL, fileType));
+
+                const thumbnailDiv = document.createElement('div');
+                thumbnailDiv.className = 'file-thumbnail';
+
+                if (fileType === 'image') {
+                    const img = document.createElement('img');
+                    img.src = fileURL;
+                    thumbnailDiv.appendChild(img);
+                } else if (fileType === 'video') {
+                    const video = document.createElement('video');
+                    video.src = fileURL;
+                    video.muted = true;
+                    thumbnailDiv.appendChild(video);
+                } else {
+                    const iconClass = getIconForFileType(fileType);
+                    thumbnailDiv.innerHTML = `<i class="${iconClass} ${fileType}"></i>`;
+                }
+
+                fileItem.innerHTML = `
+                    <div class="file-details">
+                        <div class="file-info">
+                            <p class="file-name">${file.name}</p>
+                            <small class="file-size">${formatFileSize(file.size)}</small>
+                        </div>
+                        <i class="fas fa-trash-alt icon delete-btn" style="cursor: pointer; z-index: 2;"></i>
+                    </div>
+                `;
+                fileItem.prepend(thumbnailDiv);
+
+                // [الإصلاح] ربط حدث الحذف برمجياً
+                const deleteButton = fileItem.querySelector('.delete-btn');
+                deleteButton.addEventListener('click', (event) => {
+                    deleteFile(event, deleteButton);
+                });
+
+                fileListContainer.appendChild(fileItem);
+            }
+
+            function getFileType(mimeType) {
+                if (!mimeType) return 'document';
+                if (mimeType.startsWith('image/')) return 'image';
+                if (mimeType.startsWith('video/')) return 'video';
+                if (mimeType.startsWith('audio/')) return 'audio';
+                if (mimeType.startsWith('application/zip') || mimeType.startsWith('application/x-rar-compressed')) return 'archive';
+                return 'document';
+            }
+            
+            function getIconForFileType(fileType) {
+                switch (fileType) {
+                    case 'image': return 'fas fa-file-image';
+                    case 'video': return 'fas fa-file-video';
+                    case 'audio': return 'fas fa-file-audio';
+                    case 'archive': return 'fas fa-file-archive';
+                    default: return 'fas fa-file-alt';
+                }
+            }
+
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            function deleteFile(event, element) {
+                event.stopPropagation(); // منع فتح نافذة المعاينة عند الضغط على الحذف
+                const confirmModal = document.getElementById('confirmDeleteModal');
+                const confirmBtn = document.getElementById('confirmDeleteBtn');
+                const cancelBtn = document.getElementById('cancelDeleteBtn');
+                const confirmText = document.getElementById('confirmModalText');
+                const fileItem = element.closest('.file-item');
+                const fileId = parseInt(fileItem.dataset.fileId, 10);
+
+                confirmModal.style.display = 'flex';
+                confirmText.innerHTML = 'هل أنت متأكد أنك تريد حذف هذا الملف؟<br>لا يمكن التراجع عن هذا الإجراء.';
+                
+                // استخدام .onclick هنا لإعادة تعريف الحدث في كل مرة لتجنب الحذف المتعدد
+                confirmBtn.onclick = () => {
+                    deleteFileFromDB(fileId); // الحذف من قاعدة البيانات
+                    fileItem.remove(); // الحذف من الواجهة
+                    confirmModal.style.display = 'none';
+                };
+
+                cancelBtn.onclick = () => {
+                    confirmModal.style.display = 'none';
+                };
+            }
+
+            function deleteNoteWithConfirmation(event, noteItem, noteId) {
+                event.stopPropagation();
+                const confirmModal = document.getElementById('confirmDeleteModal');
+                const confirmBtn = document.getElementById('confirmDeleteBtn');
+                const cancelBtn = document.getElementById('cancelDeleteBtn');
+                const confirmText = document.getElementById('confirmModalText');
+
+                confirmModal.style.display = 'flex';
+                confirmText.innerHTML = 'هل أنت متأكد أنك تريد حذف هذه الملاحظة؟<br>لا يمكن التراجع عن هذا الإجراء.';
+
+                confirmBtn.onclick = () => {
+                    deleteNoteFromDB(noteId);
+                    noteItem.remove();
+                    confirmModal.style.display = 'none';
+                };
+
+                cancelBtn.onclick = () => {
+                    confirmModal.style.display = 'none';
+                };
+            }
+
+            // 5. وظائف نافذة المعاينة
+            const previewModal = document.getElementById('previewModal');
+            const closePreviewModal = document.getElementById('closePreviewModal');
+            const previewBody = document.getElementById('previewBody');
+            const previewFileName = document.getElementById('previewFileName');
+            const downloadButton = document.getElementById('downloadButton');
+
+            function openPreviewModal(file, fileURL, fileType) {
+                previewFileName.textContent = file.name;
+                downloadButton.href = fileURL;
+                downloadButton.download = file.name;
+                previewBody.innerHTML = ''; // إفراغ المحتوى السابق
+
+                let previewElement;
+                if (fileType === 'image') {
+                    previewElement = document.createElement('img');
+                    previewElement.src = fileURL;
+                } else if (fileType === 'video') {
+                    previewElement = document.createElement('video');
+                    previewElement.src = fileURL;
+                    previewElement.controls = true;
+                } else if (fileType === 'audio') {
+                    previewElement = document.createElement('audio');
+                    previewElement.src = fileURL;
+                    previewElement.controls = true;
+                } else {
+                    // للملفات الأخرى، نعرض أيقونة كبيرة
+                    const iconClass = getIconForFileType(fileType);
+                    previewElement = document.createElement('i');
+                    previewElement.className = `${iconClass} ${fileType}`;
+                    previewElement.style.fontSize = '8rem';
+                }
+                
+                previewBody.appendChild(previewElement);
+                previewModal.style.display = 'flex';
+            }
+
+            closePreviewModal.addEventListener('click', () => {
+                previewModal.style.display = 'none';
+                previewBody.innerHTML = ''; // تنظيف المحتوى عند الإغلاق
+            });
+
+            // 6. وظيفة فلاتر الملفات
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // تفعيل الزر المضغوط
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    const filter = button.dataset.filter;
+                    const allFiles = document.querySelectorAll('.file-item');
+
+                    allFiles.forEach(file => {
+                        if (filter === 'all' || file.dataset.fileType === filter) {
+                            file.style.display = 'flex'; // إظهار الملفات المطابقة
+                        } else {
+                            file.style.display = 'none'; // إخفاء الملفات الأخرى
+                        }
+                    });
+                });
+            });
+        });
+
+        // 3. وظيفة إكمال المهمة
+        function toggleComplete(element) {
+            const taskItem = element.closest('.task-item');
+            taskItem.classList.toggle('completed');
+
+            if (taskItem.classList.contains('completed')) {
+                element.classList.remove('far', 'fa-circle');
+                element.classList.add('fas', 'fa-check-circle');
+            } else {
+                element.classList.remove('fas', 'fa-check-circle');
+                element.classList.add('far', 'fa-circle');
+            }
+        }
+
+        // --- [بداية الكود المدمج] ---
+
+        // 1. وظيفة التبديل بين الوضعين الفاتح والداكن
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            const body = document.getElementById('appBody');
+            const icon = document.getElementById('darkModeToggle');
+            
+            body.classList.toggle('dark-mode');
+            
+            // تبديل الأيقونة
+            if (body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // 2. تعريف دوال تسجيل الدخول وتحديث بطاقة الترحيب
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+        }
+
+        function updateWelcomeCard() {
+            const savedName = localStorage.getItem('taskFlowUserName');
+            const savedImage = localStorage.getItem('taskFlowUserImage');
+
+            if (savedName) {
+                document.getElementById('welcomeUserName').textContent = `أهلاً بك، ${savedName}`;
+                document.getElementById('loginBtnText').textContent = 'تغيير المعلومات';
+            }
+
+            if (savedImage) {
+                document.getElementById('welcomeUserImage').src = savedImage;
+            }
+        }
+
+        // 3. تطبيق الوضع المحفوظ وربط الأحداث عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', () => {
+            // تطبيق الثيم المحفوظ
+            const savedTheme = localStorage.getItem('theme');
+            const body = document.getElementById('appBody');
+            const icon = document.getElementById('darkModeToggle');
+            
+            if (savedTheme === 'dark') {
+                body.classList.add('dark-mode');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                 icon.classList.remove('fa-sun');
+                 icon.classList.add('fa-moon');
+            }
+
+            // تحديث بطاقة الترحيب بالبيانات المحفوظة
+            updateWelcomeCard(); 
+
+            // عرض التاريخ بشكل صحيح
+            const dateElement = document.getElementById('current-date-display');
+            if (dateElement) {
+                dateElement.textContent = new Date().toLocaleDateString('ar-DZ', { weekday: 'long', day: 'numeric', month: 'long' });
+            }
+            const dateElementCard = document.getElementById('current-date-display-card');
+            if (dateElementCard) {
+                dateElementCard.textContent = 'الأربعاء، 5 نوفمبر 2025';
+            }
+            // ربط الأحداث الخاصة بنافذة تسجيل الدخول
+            const loginBtn = document.getElementById('loginBtn');
+            const loginModal = document.getElementById('loginModal');
+            const saveLoginBtn = document.getElementById('saveLoginBtn');
+            const profileImageInput = document.getElementById('profileImageInput');
+            let tempImageData = null;
+
+            loginBtn.addEventListener('click', () => {
+                const savedName = localStorage.getItem('taskFlowUserName');
+                const savedImage = localStorage.getItem('taskFlowUserImage');
+                document.getElementById('fullNameInput').value = savedName || 'بلال بورابعة';
+                document.getElementById('profileImagePreview').src = savedImage || 'images/billel.png';
+                tempImageData = savedImage;
+                loginModal.style.display = 'flex';
+            });
+
+            profileImageInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        tempImageData = e.target.result;
+                        document.getElementById('profileImagePreview').src = tempImageData;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            saveLoginBtn.addEventListener('click', () => {
+                const newName = document.getElementById('fullNameInput').value;
+                localStorage.setItem('taskFlowUserName', newName);
+                if (tempImageData) {
+                    localStorage.setItem('taskFlowUserImage', tempImageData);
+                }
+                updateWelcomeCard();
+                closeLoginModal();
+            });
+
+            // ... (بقية كود DOMContentLoaded)
+
+            // --- [إضافة جديدة] إخفاء شاشة الترحيب بعد فترة ---
+            setTimeout(() => {
+                const splashScreen = document.getElementById('splash-screen');
+                if (splashScreen) {
+                    splashScreen.classList.add('hidden');
+                }
+            }, 3500); // [تعديل] زيادة المدة إلى 3.5 ثانية لتناسب التأثير الجديد
+
+            // --- [إضافة جديدة] تأثير الكتابة الآلية لنص الهاكر ---
+            const hackerTextElement = document.getElementById('hacker-text');
+            if (hackerTextElement) {
+                const text = "Establishing connection... Root access granted.";
+                let i = 0;
+                function typeWriter() {
+                    if (i < text.length) {
+                        hackerTextElement.innerHTML += text.charAt(i);
+                        i++;
+                        setTimeout(typeWriter, 50 + Math.random() * 50);
+                    } else {
+                        hackerTextElement.innerHTML += '<span style="animation: blink 1s infinite;">_</span>';
+                    }
+                }
+                typeWriter();
+            }
+
+            // --- [إضافة جديدة] إنشاء خلفية الرموز المتساقطة ---
+            const matrixContainer = document.getElementById('matrix-background');
+            if (matrixContainer) {
+                const chars = '0123456789ABCDEF';
+                const columns = Math.floor(window.innerWidth / 20);
+
+                for (let i = 0; i < columns; i++) {
+                    const column = document.createElement('div');
+                    column.className = 'matrix-column';
+                    
+                    let columnText = '';
+                    const columnLength = Math.floor(Math.random() * 40) + 20;
+                    for(let j = 0; j < columnLength; j++) {
+                        columnText += chars.charAt(Math.floor(Math.random() * chars.length));
+                    }
+                    column.textContent = columnText;
+
+                    column.style.left = `${Math.random() * 98}vw`;
+                    column.style.fontSize = `${Math.random() * 10 + 10}px`;
+                    column.style.opacity = Math.random() * 0.3 + 0.1; /* [تعديل] جعل المظهر أخف بتقليل الشفافية */
+                    column.style.animationDuration = `${Math.random() * 8 + 4}s`;
+                    column.style.animationDelay = `-${Math.random() * 10}s`; /* [إضافة جديدة] تأخير عشوائي لبداية الحركة */
+                    matrixContainer.appendChild(column);
+                }
+            }
+            // --- نهاية الإضافة ---
+        });
+    </script>
+</body>
+</html>
